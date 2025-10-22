@@ -48,7 +48,7 @@ namespace Pr7
 
             gameState.balance -= totalCost;
 
-            Core.Context.suplly_orders.Add(new supply_orders
+            Core.Context.suplly_orders.Add(new suplly_orders
             {
                 part_id = selectedPart.id,
                 quantity = qty,
@@ -71,5 +71,17 @@ namespace Pr7
                 Console.WriteLine(string.Join(", ", parts.Select(p => $"{p.name}: {p.quantity}")));
             }
         }
+        static void ProcessPendingOrders()
+        {
+            var orders = Core.GetSupplyOrders().Where(o => o.delivery_delay > 0).ToList();
+            foreach (var order in orders)
+            {
+                order.delivery_delay--;
+                if (order.delivery_delay == 0)
+                {
+                    Core.UpdateInventory(order.part_id, order.quantity);
+                    Core.Context.suplly_orders.Remove(order);
+                }  
+            }
     }
 }
