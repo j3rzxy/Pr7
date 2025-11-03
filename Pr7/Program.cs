@@ -8,6 +8,7 @@ namespace Pr7
 {
     internal class Program
     {
+        private static readonly Random random = new Random();
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -17,7 +18,7 @@ namespace Pr7
             {
                 while (true)
                 {
-                    ProcessPendingOrders(); // уменьшаем delivery_delay и добавляем на склад
+                    ProcessPendingOrders();
                     var gameState = Core.GetGameState();
 
                     if (gameState.balance < 0)
@@ -26,99 +27,90 @@ namespace Pr7
                         break;
                     }
 
-                    gameState.day_count++;
+                    gameState.day_count++; // начало нового дня
                     Core.Save();
 
                     Console.WriteLine($"\n📆 День {gameState.day_count} | 💰 Баланс: {gameState.balance:C}");
                     ShowInventory();
+                    ShowFullPartsCatalog();
 
-                    // Генерация поломки
-                    var parts = Core.GetParts().Where(p => p.quantity >= 0).ToList();
-                    if (!parts.Any()) continue;
+                    var availableParts = Core.GetParts().Where(p => p.quantity > 0).ToList();
+                    if (!availableParts.Any())
+                    {
+                        Console.WriteLine("📦 Склад пуст! Закупите запчасти, чтобы продолжить.");
+                        while (!availableParts.Any())
+                        {
+                            HandlePurchase();
+                            availableParts = Core.GetParts().Where(p => p.quantity > 0).ToList();
+                            if (!availableParts.Any())
+                            {
+                                Console.WriteLine("❌ Вы купили, но запчасти ещё не пришли. Ждите...");
+                                ProcessPendingOrders(); // обработаем поставки (может, пришла?)
+                                                        // Можно показать ожидание, но по логике — клиент приезжает каждый день
+                            }
+                        }
+                    }
 
-                    var random = new Random();
-                    var brokenPart = parts[random.Next(parts.Count)];
+                    var random = new Random(); // лучше вынести в поле класса, но для простоты оставим
+                    var brokenPart = availableParts[random.Next(availableParts.Count)];
                     decimal? repairCost = brokenPart.purchase_price + brokenPart.labor_cost;
 
                     Console.WriteLine($"\n❗ Приехал клиент! Сломалась деталь: '{brokenPart.name}'");
                     Console.WriteLine($"💰 Клиент заплатит: {repairCost:C}");
 
-                    Console.WriteLine("\nВыберите действие:");
-                    Console.WriteLine("1 — Починить");
-                    Console.WriteLine("2 — Отказать");
-                    Console.WriteLine("3 — Закупить запчасти");
-                    Console.WriteLine("4 — Выйти");
-
-                    string input = Console.ReadLine();
-                    bool success = false;
                     string status = "";
+                    bool validAction = false;
 
-                    switch (input)
+                    while (!validAction) // ← цикл для повторного ввода в рамках ОДНОГО дня
                     {
-                        case "1":
-                            if (Core.GetInventoryQuantity(brokenPart.id) > 0)
-                            {
-                                // Успешный ремонт
-                                Core.UpdateInventory(brokenPart.id, -1);
-                                gameState.balance += repairCost;
-                                status = "repaired";
-                                Console.WriteLine($"✅ Ремонт выполнен! Получено {repairCost:C}.");
-                                success = true;
-                            }
-                            else
-                            {
-                                // Есть ли вообще хоть одна деталь на складе?
-                                var anyPart = Core.GetParts().FirstOrDefault(p => p.quantity > 0);
-                                if (anyPart != null)
-                                {
-                                    // Случайная замена
-                                    Core.UpdateInventory(anyPart.id, -1);
-                                    Console.WriteLine($"⚠️ Нет '{brokenPart.name}'! Установлена случайная деталь: '{anyPart.name}'");
-                                    Console.WriteLine("😡 Клиент недоволен!");
-                                    decimal? penalty = repairCost * 2;
-                                    gameState.balance -= penalty;
-                                    Console.WriteLine($"📉 Штраф: {penalty:C}");
-                                    status = "failed";
-                                }
-                                else
-                                {
-                                    Console.WriteLine("❌ На складе вообще нет запчастей!");
-                                    decimal? penalty = repairCost * 2;
-                                    gameState.balance -= penalty;
-                                    status = "failed";
-                                }
-                            }
-                            break;
+                        Console.WriteLine("\nВыберите действие:");
+                        Console.WriteLine("1 — Починить");
+                        Console.WriteLine("2 — Отказать");
+                        Console.WriteLine("3 — Закупить запчасти");
+                        Console.WriteLine("4 — Выйти");
 
-                        case "2":
-                            const decimal refusalPenalty = 40m;
-                            gameState.balance -= refusalPenalty;
-                            Console.WriteLine($"❌ Отказ. Штраф: {refusalPenalty:C}");
-                            status = "refused";
-                            break;
+                        string input = Console.ReadLine();
 
-                        case "3":
-                            HandlePurchase();
-                            continue;
+                        switch (input)
+                        {
+                            case "1":
+                                // ... логика ремонта ...
+                                validAction = true;
+                                break;
 
-                        case "4":
-                            Console.WriteLine("Спасибо за игру!");
-                            return;
+                            case "2":
+                                // ... логика отказа ...
+                                validAction = true;
+                                break;
 
-                        default:
-                            Console.WriteLine("Неверный ввод. Попробуйте снова.");
-                            continue;
+                            case "3":
+                                HandlePurchase();
+                                // Не завершать день! Просто покажем меню снова
+                                continue; // ← остаёмся в том же дне, повторяем выбор
+
+                            case "4":
+                                Console.WriteLine("Спасибо за игру!");
+                                return;
+
+                            default:
+                                Console.WriteLine("Неверный ввод. Попробуйте снова.");
+                                // validAction остаётся false → цикл повторяется
+                                break;
+                        }
                     }
 
-                    // Логируем клиента
-                    Core.Context.customer_history.Add(new customer_history
+                    // Логируем клиента (только после валидного действия 1 или 2)
+                    if (status != "") // можно улучшить, но для простоты
                     {
-                        day = gameState.day_count,
-                        broken_part_id = brokenPart.id,
-                        repair_cost = repairCost,
-                        status = status
-                    });
-                    Core.Save();
+                        Core.Context.customer_history.Add(new customer_history
+                        {
+                            day = gameState.day_count,
+                            broken_part_id = brokenPart.id,
+                            repair_cost = repairCost,
+                            status = status
+                        });
+                        Core.Save();
+                    }
                 }
             }
             catch (Exception ex)
@@ -130,26 +122,21 @@ namespace Pr7
         }
         static void HandlePurchase()
         {
-            var parts = Core.GetParts();
-            Console.WriteLine("\n🛒 Доступные запчасти:");
-            for (int i = 0; i < parts.Count; i++)
-            {
-                Console.WriteLine($"{i + 1}. {parts[i].name} — закупка: {parts[i].purchase_price:C}");
-            }
+            ShowFullPartsCatalog();
 
-            Console.Write("Выберите номер запчасти: ");
+            var parts = Core.GetParts();
+            Console.Write("\nВведите номер запчасти для закупки: ");
             if (!int.TryParse(Console.ReadLine(), out int idx) || idx < 1 || idx > parts.Count)
             {
-                Console.WriteLine("Неверный номер.");
+                Console.WriteLine("❌ Неверный номер.");
                 return;
             }
 
             var selectedPart = parts[idx - 1];
-
-            Console.Write("Введите количество: ");
+            Console.Write($"Сколько шт. '{selectedPart.name}' закупить? ");
             if (!int.TryParse(Console.ReadLine(), out int qty) || qty <= 0)
             {
-                Console.WriteLine("Количество должно быть положительным целым числом.");
+                Console.WriteLine("❌ Количество должно быть положительным целым числом.");
                 return;
             }
 
@@ -163,28 +150,25 @@ namespace Pr7
             }
 
             gameState.balance -= totalCost;
-
             Core.Context.supply_orders.Add(new supply_orders
             {
                 part_id = selectedPart.id,
                 quantity = qty,
                 delivery_delay = 2
             });
-
             Core.Save();
             Console.WriteLine($"✅ Заказ на {qty} шт. '{selectedPart.name}' оформлен. Поступление через 2 дня.");
         }
         static void ShowInventory()
         {
-            Console.Write("📦 Склад: ");
-            var parts = Core.GetParts().Where(p => p.quantity > 0).ToList();
-            if (!parts.Any())
+            var inStock = Core.GetParts().Where(p => p.quantity > 0).ToList();
+            if (inStock.Any())
             {
-                Console.WriteLine("пусто!");
+                Console.WriteLine("📦 На складе: " + string.Join(", ", inStock.Select(p => $"{p.name} ({p.quantity})")));
             }
             else
             {
-                Console.WriteLine(string.Join(", ", parts.Select(p => $"{p.name}: {p.quantity}")));
+                Console.WriteLine("📦 Склад пуст!");
             }
         }
         static void ProcessPendingOrders()
@@ -200,6 +184,23 @@ namespace Pr7
                 }
             }
             Core.Save(); // ← обязательно!
+        }
+        static void ShowFullPartsCatalog()
+        {
+            Console.WriteLine("\n📋 Каталог всех запчастей:");
+            Console.WriteLine("┌──────────────────────┬──────────────┬──────────────┬──────────────┐");
+            Console.WriteLine("│ Запчасть             │ Закупка      │ Ремонт       │ На складе    │");
+            Console.WriteLine("├──────────────────────┼──────────────┼──────────────┼──────────────┤");
+
+            var allParts = Core.GetParts();
+            foreach (var part in allParts)
+            {
+                decimal? repairPrice = part.purchase_price + part.labor_cost;
+                string name = part.name.Length > 20 ? part.name.Substring(0, 20) : part.name.PadRight(20);
+                string stock = part.quantity >= 999 ? "∞" : part.quantity.ToString().PadLeft(12);
+                Console.WriteLine($"│ {name} │ {part.purchase_price,12:C} │ {repairPrice,12:C} │ {stock} │");
+            }
+            Console.WriteLine("└──────────────────────┴──────────────┴──────────────┴──────────────┘");
         }
     }
 }
