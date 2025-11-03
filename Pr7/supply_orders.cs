@@ -12,7 +12,7 @@ namespace Pr7
     using System;
     using System.Collections.Generic;
     
-    public partial class suplly_orders
+    public partial class supply_orders
     {
         public int id { get; set; }
         public Nullable<int> part_id { get; set; }

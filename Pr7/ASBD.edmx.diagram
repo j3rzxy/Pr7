@@ -8,10 +8,10 @@
         <EntityTypeShape EntityType="AutoServiceBDModel.customer_history" Width="1.5" PointX="3" PointY="1.125" IsExpanded="true" />
         <EntityTypeShape EntityType="AutoServiceBDModel.game_stats" Width="1.5" PointX="5.75" PointY="0.75" IsExpanded="true" />
         <EntityTypeShape EntityType="AutoServiceBDModel.parts" Width="1.5" PointX="0.75" PointY="2.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="AutoServiceBDModel.suplly_orders" Width="1.5" PointX="3" PointY="4" IsExpanded="true" />
         <EntityTypeShape EntityType="AutoServiceBDModel.sysdiagrams" Width="1.5" PointX="5.75" PointY="3.75" IsExpanded="true" />
         <AssociationConnector Association="AutoServiceBDModel.FK_customer_history_parts" ManuallyRouted="false" />
-        <AssociationConnector Association="AutoServiceBDModel.FK__suplly_or__part___49C3F6B7" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="AutoServiceBDModel.supply_orders" Width="1.5" PointX="3" PointY="4.625" />
+        <AssociationConnector Association="AutoServiceBDModel.FK__suplly_or__part___49C3F6B7" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

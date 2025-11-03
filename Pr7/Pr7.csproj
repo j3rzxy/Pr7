@@ -78,7 +78,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="suplly_orders.cs">
+    <Compile Include="supply_orders.cs">
       <DependentUpon>ASBD.tt</DependentUpon>
     </Compile>
     <Compile Include="sysdiagrams.cs">

@@ -18,7 +18,7 @@ namespace Pr7
         public parts()
         {
             this.customer_history = new HashSet<customer_history>();
-            this.suplly_orders = new HashSet<suplly_orders>();
+            this.supply_orders = new HashSet<supply_orders>();
         }
     
         public int id { get; set; }
@@ -30,6 +30,6 @@ namespace Pr7
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<customer_history> customer_history { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<suplly_orders> suplly_orders { get; set; }
+        public virtual ICollection<supply_orders> supply_orders { get; set; }
     }
 }

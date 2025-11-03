@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="Хранилище AutoServiceBDModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="Хранилище AutoServiceBDModel" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="customer_history">
           <Key>
             <PropertyRef Name="id" />
@@ -33,7 +33,7 @@
           <Property Name="labor_cost" Type="decimal" Precision="18" Scale="2" />
           <Property Name="quantity" Type="int" />
         </EntityType>
-        <EntityType Name="suplly_orders">
+        <EntityType Name="supply_orders">
           <Key>
             <PropertyRef Name="id" />
           </Key>
@@ -54,12 +54,12 @@
         </EntityType>
         <Association Name="FK__suplly_or__part___49C3F6B7">
           <End Role="parts" Type="Self.parts" Multiplicity="0..1" />
-          <End Role="suplly_orders" Type="Self.suplly_orders" Multiplicity="*" />
+          <End Role="supply_orders" Type="Self.supply_orders" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="parts">
               <PropertyRef Name="id" />
             </Principal>
-            <Dependent Role="suplly_orders">
+            <Dependent Role="supply_orders">
               <PropertyRef Name="part_id" />
             </Dependent>
           </ReferentialConstraint>
@@ -80,19 +80,18 @@
           <EntitySet Name="customer_history" EntityType="Self.customer_history" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="game_stats" EntityType="Self.game_stats" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="parts" EntityType="Self.parts" Schema="dbo" store:Type="Tables" />
-          <EntitySet Name="suplly_orders" EntityType="Self.suplly_orders" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="supply_orders" EntityType="Self.supply_orders" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK__suplly_or__part___49C3F6B7" Association="Self.FK__suplly_or__part___49C3F6B7">
             <End Role="parts" EntitySet="parts" />
-            <End Role="suplly_orders" EntitySet="suplly_orders" />
+            <End Role="supply_orders" EntitySet="supply_orders" />
           </AssociationSet>
           <AssociationSet Name="FK_customer_history_parts" Association="Self.FK_customer_history_parts">
             <End Role="parts" EntitySet="parts" />
             <End Role="customer_history" EntitySet="customer_history" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="AutoServiceBDModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -125,17 +124,7 @@
           <Property Name="labor_cost" Type="Decimal" Precision="18" Scale="2" />
           <Property Name="quantity" Type="Int32" />
           <NavigationProperty Name="customer_history" Relationship="Self.FK_customer_history_parts" FromRole="parts" ToRole="customer_history" />
-          <NavigationProperty Name="suplly_orders" Relationship="Self.FK__suplly_or__part___49C3F6B7" FromRole="parts" ToRole="suplly_orders" />
-        </EntityType>
-        <EntityType Name="suplly_orders">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="part_id" Type="Int32" />
-          <Property Name="quantity" Type="Int32" />
-          <Property Name="delivery_delay" Type="Int32" />
-          <NavigationProperty Name="parts" Relationship="Self.FK__suplly_or__part___49C3F6B7" FromRole="suplly_orders" ToRole="parts" />
+          <NavigationProperty Name="supply_orders" Relationship="AutoServiceBDModel.FK__suplly_or__part___49C3F6B7" FromRole="parts" ToRole="supply_orders" />
         </EntityType>
         <EntityType Name="sysdiagrams">
           <Key>
@@ -159,33 +148,43 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__suplly_or__part___49C3F6B7">
-          <End Role="parts" Type="Self.parts" Multiplicity="0..1" />
-          <End Role="suplly_orders" Type="Self.suplly_orders" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="parts">
-              <PropertyRef Name="id" />
-            </Principal>
-            <Dependent Role="suplly_orders">
-              <PropertyRef Name="part_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <EntityContainer Name="AutoServiceBDEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="customer_history" EntityType="Self.customer_history" />
           <EntitySet Name="game_stats" EntityType="Self.game_stats" />
           <EntitySet Name="parts" EntityType="Self.parts" />
-          <EntitySet Name="suplly_orders" EntityType="Self.suplly_orders" />
           <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" />
           <AssociationSet Name="FK_customer_history_parts" Association="Self.FK_customer_history_parts">
             <End Role="parts" EntitySet="parts" />
             <End Role="customer_history" EntitySet="customer_history" />
           </AssociationSet>
-          <AssociationSet Name="FK__suplly_or__part___49C3F6B7" Association="Self.FK__suplly_or__part___49C3F6B7">
+          <EntitySet Name="supply_orders" EntityType="AutoServiceBDModel.supply_orders" />
+          <AssociationSet Name="FK__suplly_or__part___49C3F6B7" Association="AutoServiceBDModel.FK__suplly_or__part___49C3F6B7">
             <End Role="parts" EntitySet="parts" />
-            <End Role="suplly_orders" EntitySet="suplly_orders" />
+            <End Role="supply_orders" EntitySet="supply_orders" />
           </AssociationSet>
         </EntityContainer>
+        <EntityType Name="supply_orders">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="part_id" Type="Int32" />
+          <Property Name="quantity" Type="Int32" />
+          <Property Name="delivery_delay" Type="Int32" />
+          <NavigationProperty Name="parts" Relationship="AutoServiceBDModel.FK__suplly_or__part___49C3F6B7" FromRole="supply_orders" ToRole="parts" />
+        </EntityType>
+        <Association Name="FK__suplly_or__part___49C3F6B7">
+          <End Type="AutoServiceBDModel.parts" Role="parts" Multiplicity="0..1" />
+          <End Type="AutoServiceBDModel.supply_orders" Role="supply_orders" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="parts">
+              <PropertyRef Name="id" />
+            </Principal>
+            <Dependent Role="supply_orders">
+              <PropertyRef Name="part_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -223,16 +222,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="suplly_orders">
-            <EntityTypeMapping TypeName="AutoServiceBDModel.suplly_orders">
-              <MappingFragment StoreEntitySet="suplly_orders">
-                <ScalarProperty Name="id" ColumnName="id" />
-                <ScalarProperty Name="part_id" ColumnName="part_id" />
-                <ScalarProperty Name="quantity" ColumnName="quantity" />
-                <ScalarProperty Name="delivery_delay" ColumnName="delivery_delay" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="sysdiagrams">
             <EntityTypeMapping TypeName="AutoServiceBDModel.sysdiagrams">
               <MappingFragment StoreEntitySet="sysdiagrams">
@@ -241,6 +230,16 @@
                 <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
                 <ScalarProperty Name="version" ColumnName="version" />
                 <ScalarProperty Name="definition" ColumnName="definition" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="supply_orders">
+            <EntityTypeMapping TypeName="AutoServiceBDModel.supply_orders">
+              <MappingFragment StoreEntitySet="supply_orders">
+                <ScalarProperty Name="delivery_delay" ColumnName="delivery_delay" />
+                <ScalarProperty Name="quantity" ColumnName="quantity" />
+                <ScalarProperty Name="part_id" ColumnName="part_id" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

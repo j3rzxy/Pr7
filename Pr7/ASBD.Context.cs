@@ -28,7 +28,7 @@ namespace Pr7
         public virtual DbSet<customer_history> customer_history { get; set; }
         public virtual DbSet<game_stats> game_stats { get; set; }
         public virtual DbSet<parts> parts { get; set; }
-        public virtual DbSet<suplly_orders> suplly_orders { get; set; }
         public virtual DbSet<sysdiagrams> sysdiagrams { get; set; }
+        public virtual DbSet<supply_orders> supply_orders { get; set; }
     }
 }
