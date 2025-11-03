@@ -32,7 +32,6 @@ namespace Pr7
 
                     Console.WriteLine($"\n📆 День {gameState.day_count} | 💰 Баланс: {gameState.balance:C}");
                     ShowInventory();
-                    ShowFullPartsCatalog();
 
                     var availableParts = Core.GetParts().Where(p => p.quantity > 0).ToList();
                     if (!availableParts.Any())
